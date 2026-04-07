@@ -50,7 +50,6 @@ from dotenv import load_dotenv
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.providers.anthropic import AnthropicProvider
 from pydantic_ai.models.anthropic import AnthropicModel
-from pydantic_ai.common_tools.duckduckgo import duckduckgo_search_tool
 
 # Load .env file
 load_dotenv()
