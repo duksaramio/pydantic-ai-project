@@ -1,5 +1,7 @@
 # Pydantic Tutorial by Duke
 
+I am currently going through Pydantic AI website examples using Ollama+Gemma4. I use PyCharm with pi ACP as coding Agent on Ubuntu 24. Also running on Nvidia 4090. So these examples are available on Pydantic AI website, but I modified them to use local LLM.
+
 ## Ollama + Gemma4 
 
 ```bash
