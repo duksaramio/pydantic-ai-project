@@ -1,17 +1,4 @@
-from pydantic import BaseModel
-
 from pydantic_ai import Agent
-
-import mlflow
-
-mlflow.pydantic_ai.autolog()
-
-mlflow.set_tracking_uri("http://localhost:5000")
-mlflow.set_experiment("pydanticai")
-
-class CityLocation(BaseModel):
-    city: str
-    country: str
 
 # Use MiniMax-M2.7 with Pydantic AI
 
@@ -23,6 +10,12 @@ from pydantic_ai import Agent, RunContext
 from pydantic_ai.providers.anthropic import AnthropicProvider
 from pydantic_ai.models.anthropic import AnthropicModel
 
+import mlflow
+
+mlflow.pydantic_ai.autolog()
+
+mlflow.set_tracking_uri("http://localhost:5000")
+mlflow.set_experiment("pydanticai")
 # Load .env file
 load_dotenv()
 
@@ -38,9 +31,18 @@ model = AnthropicModel(
     )
 )
 
-agent = Agent(model, output_type=CityLocation)
-result = agent.run_sync('Where were the olympics held in 2012?')
+agent = Agent(model)
+
+agent = Agent[None, list[str] | list[int]](
+  model,
+  output_type=list[str] | list[int],  # type: ignore
+  instructions='Extract either colors or sizes from the shapes provided.',
+)
+
+result = agent.run_sync('red square, blue circle, green triangle')
 print(result.output)
-#> city='London' country='United Kingdom'
-print(result.usage())
-#> RunUsage(input_tokens=57, output_tokens=8, requests=1)
+#> ['red', 'blue', 'green']
+
+result = agent.run_sync('square size 10, circle size 20, triangle size 30')
+print(result.output)
+#> [10, 20, 30]

@@ -2,16 +2,12 @@ from pydantic import BaseModel
 
 from pydantic_ai import Agent
 
-import mlflow
 
-mlflow.pydantic_ai.autolog()
-
-mlflow.set_tracking_uri("http://localhost:5000")
-mlflow.set_experiment("pydanticai")
-
-class CityLocation(BaseModel):
-    city: str
-    country: str
+class Box(BaseModel):
+  width: int
+  height: int
+  depth: int
+  units: str
 
 # Use MiniMax-M2.7 with Pydantic AI
 
@@ -23,6 +19,12 @@ from pydantic_ai import Agent, RunContext
 from pydantic_ai.providers.anthropic import AnthropicProvider
 from pydantic_ai.models.anthropic import AnthropicModel
 
+import mlflow
+
+mlflow.pydantic_ai.autolog()
+
+mlflow.set_tracking_uri("http://localhost:5000")
+mlflow.set_experiment("pydanticai")
 # Load .env file
 load_dotenv()
 
@@ -38,9 +40,19 @@ model = AnthropicModel(
     )
 )
 
-agent = Agent(model, output_type=CityLocation)
-result = agent.run_sync('Where were the olympics held in 2012?')
+agent = Agent(
+  model,
+  output_type=[Box, str],
+  instructions=(
+      "Extract me the dimensions of a box, "
+      "if you can't extract all data, ask the user to try again."
+  ),
+)
+
+result = agent.run_sync('The box is 10x20x30')
 print(result.output)
-#> city='London' country='United Kingdom'
-print(result.usage())
-#> RunUsage(input_tokens=57, output_tokens=8, requests=1)
+#> Please provide the units for the dimensions (e.g., cm, in, m).
+
+result = agent.run_sync('The box is 10x20x30 cm')
+print(result.output)
+#> width=10 height=20 depth=30 units='cm'

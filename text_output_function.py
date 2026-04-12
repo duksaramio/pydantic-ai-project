@@ -1,18 +1,4 @@
-from pydantic import BaseModel
-
-from pydantic_ai import Agent
-
-import mlflow
-
-mlflow.pydantic_ai.autolog()
-
-mlflow.set_tracking_uri("http://localhost:5000")
-mlflow.set_experiment("pydanticai")
-
-class CityLocation(BaseModel):
-    city: str
-    country: str
-
+from pydantic_ai import Agent, TextOutput
 # Use MiniMax-M2.7 with Pydantic AI
 
 import os
@@ -23,6 +9,12 @@ from pydantic_ai import Agent, RunContext
 from pydantic_ai.providers.anthropic import AnthropicProvider
 from pydantic_ai.models.anthropic import AnthropicModel
 
+import mlflow
+
+mlflow.pydantic_ai.autolog()
+
+mlflow.set_tracking_uri("http://localhost:5000")
+mlflow.set_experiment("pydanticai")
 # Load .env file
 load_dotenv()
 
@@ -38,9 +30,14 @@ model = AnthropicModel(
     )
 )
 
-agent = Agent(model, output_type=CityLocation)
-result = agent.run_sync('Where were the olympics held in 2012?')
+def split_into_words(text: str) -> list[str]:
+    return text.split()
+
+
+agent = Agent(
+    model,
+    output_type=TextOutput(split_into_words),
+)
+result = agent.run_sync('Who was Albert Einstein?')
 print(result.output)
-#> city='London' country='United Kingdom'
-print(result.usage())
-#> RunUsage(input_tokens=57, output_tokens=8, requests=1)
+#> ['Albert', 'Einstein', 'was', 'a', 'German-born', 'theoretical', 'physicist.']
