@@ -32,12 +32,7 @@ ollama_model = OpenAIChatModel(
     model_name=OLLAMA_MODEL_NAME,
     provider=OllamaProvider(base_url=OLLAMA_BASE_URL),
 )
-agent = Agent(
-    ollama_model,
-    system_prompt=(
-        "ENTER YOUR SYSTEM PROMPT"
-    ),
-)
+agent = Agent(ollama_model)
 ```
 
 ## MiniMax-M2.7 using Anthropic Endpoints 
@@ -67,4 +62,15 @@ model = AnthropicModel(
 )
 
 agent = Agent(model)
+```
+
+## Adding mlflow server to trace
+
+```python
+import mlflow
+
+mlflow.pydantic_ai.autolog()
+
+mlflow.set_tracking_uri("http://localhost:5000")
+mlflow.set_experiment("pydanticai")
 ```
